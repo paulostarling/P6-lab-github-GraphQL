@@ -1,13 +1,33 @@
-# An example to get the remaining rate limit using the Github GraphQL API.
-
 import requests
 from datetime import datetime
 from datetime import date
+import csv
 
 
-api_token = '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'
+api_token = 'place_your_token_here'
 
 headers = {'Authorization': 'token %s' % api_token}
+
+def save_data_to_file(data):
+  # open the file in the write mode
+  f = open('data.csv', 'a', newline='')
+  writer = csv.writer(f)
+  for repository in data:
+    row = []
+    row.append(repository['node']['name'])
+    row.append(repository['node']['createdAt'])
+    row.append(repository['node']['pushedAt'])
+    row.append(repository['node']['stargazers']['totalCount'])
+    row.append(repository['node']['pullRequests']['totalCount'])
+    row.append(repository['node']['releases']['totalCount'])
+    if repository['node']['primaryLanguage'] == None:
+      row.append('None')
+    else: 
+      row.append(repository['node']['primaryLanguage']['name'])
+    row.append(repository['node']['open']['totalCount'])
+    row.append(repository['node']['closed']['totalCount'])
+    writer.writerow(row)
+  f.close()
 
 def run_query(query): # A simple function to use requests.post to make the API call. Note the json= section.
     request = requests.post('https://api.github.com/graphql', json={'query': query}, headers=headers)
@@ -19,7 +39,7 @@ def run_query(query): # A simple function to use requests.post to make the API c
 # The GraphQL query (with a few aditional bits included) itself defined as a multi-line string.
 query = """
 {
-  search(query: "is:public stars:>100 sort:stars-desc", type: REPOSITORY, first: 100) {
+  search(query: "is:public stars:>100 sort:stars-desc", type: REPOSITORY, first: 10, after:null) {
     repositoryCount
     pageInfo {
       endCursor
@@ -43,6 +63,12 @@ query = """
           primaryLanguage{
             name
           }
+          open: issues(states:OPEN) {
+            totalCount
+          }
+          closed: issues(states:CLOSED) {
+            totalCount
+          }
         }
       }
     }
@@ -50,72 +76,22 @@ query = """
 }
 """
 
+header = ['name', 'createdAt', 'pushedAt', 'stargazers', 'pullRequests', 'releases', 'primaryLanguage', 'open_issues', 'closed_issues']
+f = open('data.csv', 'w', newline='')
+writer = csv.writer(f)
+writer.writerow(header)
+f.close()
+
 query_result = run_query(query) # Execute the query
-print(query_result)
-results = []
-results.append(query_result['data']['search']['edges'])
+print(query_result['data']['search']['edges'])
+save_data_to_file(query_result['data']['search']['edges'])
 end_cursor = '"' + query_result['data']['search']['pageInfo']['endCursor'] + '"'
-for x in range(1,10):
-  query = """
-  {
-    search(query: "is:public stars:>100 sort:stars-desc", after:""" + end_cursor + """, type: REPOSITORY, first: 100) {
-      repositoryCount
-      pageInfo {
-        endCursor
-        startCursor
-      }
-      edges {
-        node {
-          ... on Repository {
-            name
-            createdAt
-            pushedAt
-            stargazers {
-              totalCount
-            }
-            pullRequests(states:MERGED) {
-              totalCount
-            }
-            releases {
-              totalCount
-            }
-            primaryLanguage {
-              name
-            }
-          }
-        }
-      }
-    }
-  }
-  """
+query = query.replace('null', end_cursor)
+old_end_cursor = end_cursor
+for x in range(1,100):
   query_result = run_query(query)
-  results.append(query_result['data']['search']['edges'])
-  end_cursor = '"' + query_result['data']['search']['pageInfo']['endCursor'] + '"'
+  save_data_to_file(query_result['data']['search']['edges'])
+  new_end_cursor = '"' + query_result['data']['search']['pageInfo']['endCursor'] + '"'
+  query = query.replace(old_end_cursor, new_end_cursor)
+  old_end_cursor = new_end_cursor
 
-today = date.today()
-total_days = 0
-total_mr = 0
-total_releases = 0
-for result in results:
-  for repository in result:
-    # Calcula numero total de dias dos 1000 repos
-    createdAt = repository['node']['createdAt']
-    split_string = createdAt.split("T", 1)
-    datetime_object = datetime.strptime(split_string[0], '%Y-%m-%d').date()
-    delta = today - datetime_object
-    total_days += delta.days
-
-    # Calcula total de MR
-    repository_mr_count = repository['node']['pullRequests']['totalCount']
-    total_mr += repository_mr_count
-
-    # Calcula total de releases
-    repository_releases = repository['node']['releases']['totalCount']
-    total_releases += repository_releases
-
-media_anos = total_days/360/1000
-media_mr = total_mr/1000
-media_total_releases = total_releases/1000
-print('Media de anos dos repos', media_anos)
-print('Media de merge requests aceitos', media_mr)
-print('Media total de releases', media_total_releases)
