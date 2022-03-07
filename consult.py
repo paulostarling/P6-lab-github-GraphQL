@@ -1,6 +1,4 @@
 import requests
-from datetime import datetime
-from datetime import date
 import csv
 
 
