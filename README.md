@@ -21,3 +21,8 @@ Para realização do desafio foi utilizando a metodologia agil com os seguintes 
 * SP 02. Paginação (consulta 1000 repositórios) + dados em arquivo .csv
 * SP 03. Análise e visualização de dados + elaboração do relatório final
 
+### Requisitos
+
+Para utilizar o codigo acima é necessário na variavel api_token substituir a string 'place_your_token_here' pelo seu token disponibilizado  pelo github. Ex:
+ 
+    api_token = 'seu_token_do_github'
