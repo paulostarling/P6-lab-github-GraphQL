@@ -23,6 +23,8 @@ Para realização do desafio foi utilizando a metodologia agil com os seguintes 
 
 ### Requisitos
 
-Para utilizar o codigo acima é necessário na variavel api_token substituir a string 'place_your_token_here' pelo seu token disponibilizado  pelo github. Ex:
+* Para utilizar o codigo acima é necessário na variavel api_token substituir a string 'place_your_token_here' pelo seu token disponibilizado  pelo github. Ex:
  
-    api_token = 'seu_token_do_github'
+      api_token = 'seu_token_do_github'
+
+* Para utilização dos import utilizar o interpretador python 3.9.7 
