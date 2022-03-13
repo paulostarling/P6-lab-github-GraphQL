@@ -99,7 +99,7 @@ end_cursor = '"' + \
 query = query.replace('null', end_cursor)
 old_end_cursor = end_cursor
 
-for x in range(1, 100):
+for x in range(1, 10):
     query_result = run_query(query)
     save_data_to_file(query_result['data']['search']['edges'])
     new_end_cursor = '"' + \
@@ -108,4 +108,21 @@ for x in range(1, 100):
     old_end_cursor = new_end_cursor
 
 dataframe = pd.DataFrame(index=header)
-print(pd.read_csv('data.csv'))
+dataframe = pd.read_csv('data.csv')
+#  print(dataframe)
+
+#  dataframe.to_excel('dataframe.xlsx', sheet_name='pagina01', index=header)
+
+#  RQ 01. Sistemas populares são maduros/antigos?
+
+
+def requesito_um(dataframe):
+    colunas_selecionadas = ['createdAt', 'stargazers']
+    dataframe_com_createdAt_stargazes = dataframe.filter(
+        items=colunas_selecionadas)
+    agrupamento_sistemas_mais_antigos_com_estrelas = dataframe_com_createdAt_stargazes.groupby(
+        'createdAt').max()
+    return agrupamento_sistemas_mais_antigos_com_estrelas
+
+
+print(requesito_um(dataframe))
