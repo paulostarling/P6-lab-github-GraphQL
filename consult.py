@@ -99,7 +99,7 @@ end_cursor = '"' + \
 query = query.replace('null', end_cursor)
 old_end_cursor = end_cursor
 
-for x in range(1, 10):
+for x in range(1, 100):
     query_result = run_query(query)
     save_data_to_file(query_result['data']['search']['edges'])
     new_end_cursor = '"' + \
@@ -113,10 +113,10 @@ dataframe = pd.read_csv('data.csv')
 
 #  dataframe.to_excel('dataframe.xlsx', sheet_name='pagina01', index=header)
 
-#  RQ 01. Sistemas populares são maduros/antigos?
+#  RQ 01. Sistemas populares são maduros/antigos? Métrica: idade do repositório (calculado a partir da data de sua criação)
 
 
-def requesito_um(dataframe):
+def requisito_um(dataframe):
     colunas_selecionadas = ['createdAt', 'stargazers']
     dataframe_com_createdAt_stargazes = dataframe.filter(
         items=colunas_selecionadas)
@@ -125,4 +125,23 @@ def requesito_um(dataframe):
     return agrupamento_sistemas_mais_antigos_com_estrelas
 
 
-print(requesito_um(dataframe))
+def mediana(dataframe):
+    mediana_dataframe = dataframe.median()
+    return mediana_dataframe
+
+
+rq_um = requisito_um(dataframe)
+#  print(rq_um)
+#  print(type(rq_um))
+
+print(f'A mediana do requisito 01 eh: {mediana(rq_um)}')
+
+
+def plt_requisito_um(dataframe):
+    x = pd.DataFrame(dataframe, columns=['stargazers'])
+    y = rq_um.index
+    plt.scatter(x, y)
+    return plt.show()
+
+
+#  plt_requisito_um(rq_um)
