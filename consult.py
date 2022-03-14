@@ -2,8 +2,10 @@ import requests
 import csv
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import date
+from datetime import datetime
 
-api_token = 'place_your_token_here'
+api_token = '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'
 
 headers = {'Authorization': 'token %s' % api_token}
 
@@ -109,20 +111,9 @@ for x in range(1, 100):
 
 dataframe = pd.DataFrame(index=header)
 dataframe = pd.read_csv('data.csv')
-#  print(dataframe)
 
-#  dataframe.to_excel('dataframe.xlsx', sheet_name='pagina01', index=header)
-
-#  RQ 01. Sistemas populares são maduros/antigos? Métrica: idade do repositório (calculado a partir da data de sua criação)
-
-
-def requisito_um(dataframe):
-    colunas_selecionadas = ['createdAt', 'stargazers']
-    dataframe_com_createdAt_stargazes = dataframe.filter(
-        items=colunas_selecionadas)
-    agrupamento_sistemas_mais_antigos_com_estrelas = dataframe_com_createdAt_stargazes.groupby(
-        'createdAt').max()
-    return agrupamento_sistemas_mais_antigos_com_estrelas
+total_pull_requests = dataframe['pullRequests']
+#  print(total_pull_requests)
 
 
 def mediana(dataframe):
@@ -130,18 +121,48 @@ def mediana(dataframe):
     return mediana_dataframe
 
 
-rq_um = requisito_um(dataframe)
-#  print(rq_um)
-#  print(type(rq_um))
-
-print(f'A mediana do requisito 01 eh: {mediana(rq_um)}')
+mediana_total_pull_requests = mediana(total_pull_requests)
+print(f'A mediana total dos pull request eh: {mediana_total_pull_requests}')
 
 
-def plt_requisito_um(dataframe):
-    x = pd.DataFrame(dataframe, columns=['stargazers'])
-    y = rq_um.index
-    plt.scatter(x, y)
+def requisito_dois(dataframe):
+    colunas_selecionadas = ['name', 'pullRequests']
+    dataframe_com_name_pullRequests = dataframe.filter(
+        items=colunas_selecionadas)
+    return dataframe_com_name_pullRequests
+
+
+rq_dois = requisito_dois(dataframe)
+# print(rq_dois)
+
+
+def plt_requisito_dois(dataframe):
+    boxplot = dataframe.boxplot(column=['pullRequests'])
+    boxplot.plot()
     return plt.show()
 
 
-#  plt_requisito_um(rq_um)
+# plt_requisito_dois(rq_dois)
+
+
+def requisito_tres(dataframe):
+    colunas_selecionadas = ['name', 'releases']
+    dataframe_com_name_realease = dataframe.filter(
+        items=colunas_selecionadas)
+    return dataframe_com_name_realease
+
+
+rq_tres = requisito_tres(dataframe)
+# print(rq_tres)
+
+
+def plt_requisito_tres(dataframe):
+    boxplot = dataframe.boxplot(column=['releases'])
+    boxplot.plot()
+    return plt.show()
+
+
+total_release = dataframe['releases']
+mediana_total_release = mediana(total_release)
+print(f'A mediana total dos release eh: {mediana_total_release}')
+# plt_requisito_tres(rq_tres)
