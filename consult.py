@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import date
 from datetime import datetime
+import numpy as np
 
 api_token = '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'
 
@@ -166,3 +167,89 @@ total_release = dataframe['releases']
 mediana_total_release = mediana(total_release)
 print(f'A mediana total dos release eh: {mediana_total_release}')
 # plt_requisito_tres(rq_tres)
+
+#RQ 01. Sistemas populares são maduros/antigos?
+
+today = date.today()
+with open('data.csv', newline='') as csvfile:
+  spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+  next(spamreader)
+  delta_array = []
+  for row in spamreader:
+    create_date = row[0].split(',')[1]
+    split_string = create_date.split("T", 1)
+    datetime_object = datetime.strptime(split_string[0], '%Y-%m-%d').date()
+    delta = today - datetime_object  
+    delta_array.append(delta.days/360)
+median = np.median(delta_array)
+fig1, ax1 = plt.subplots()
+ax1.set_title('Ano do repositório')
+ax1.boxplot(delta_array)
+plt.show()
+
+#RQ 04. Sistemas populares são atualizados com frequência?
+
+today = date.today()
+with open('data.csv', newline='') as csvfile:
+  spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+  next(spamreader)
+  delta_array = []
+  for row in spamreader:
+    date_last_push = row[0].split(',')[2]
+    split_string = date_last_push.split("T", 1)
+    datetime_object = datetime.strptime(split_string[0], '%Y-%m-%d').date()
+    delta = today - datetime_object  
+    delta_array.append(delta.days)
+median = np.median(delta_array)
+fig1, ax1 = plt.subplots()
+ax1.set_title('Atualização do repositório')
+ax1.boxplot(delta_array)
+plt.show()
+
+# RQ 05. Sistemas populares são escritos nas linguagens mais populares?
+
+famous_languages = ['JavaScript', 'Python', 'Java', 'TypeScript', 'C#', 'PHP', 'C++', 'Shell', 'C', 'Ruby']
+with open('data.csv', newline='') as csvfile:
+  spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+  next(spamreader)
+  is_famous_language_counter = 0
+  is_not_famous_language_counter = 0
+  for row in spamreader:
+    language_name = row[0].split(',')[6]
+    found = 0
+    for idx, data in enumerate(famous_languages):
+        if famous_languages[idx] == language_name:
+           is_famous_language_counter += 1
+           found = 1
+           break
+    if found == 0:
+      is_not_famous_language_counter += 1
+
+
+chart_label = ['Is famous language', 'Is NOT famous language']
+chart_value = [is_famous_language_counter, is_not_famous_language_counter]
+
+plt.pie(chart_value,labels = chart_label, autopct='%1.2f%%')
+plt.show()
+
+# RQ 06. Sistemas populares possuem um alto percentual de issues fechadas?
+
+with open('data.csv', newline='') as csvfile:
+  spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+  next(spamreader)
+  closed_issues_total = 0
+  open_issues_total = 0
+  total_issues = 0
+  for row in spamreader:
+    if len(row[0].split(',')) <= 8:
+      continue
+    open_issues = row[0].split(',')[7]
+    closed_issues = row[0].split(',')[8]
+    closed_issues_total += int(closed_issues)
+    open_issues_total += int(open_issues)
+
+
+chart_labels = ['Closed issues', 'Open issues']
+chart_values = [closed_issues_total, open_issues_total]
+plt.pie(chart_values, labels = chart_labels, autopct='%1.2f%%')
+plt.show()
