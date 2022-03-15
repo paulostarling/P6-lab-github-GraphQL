@@ -129,7 +129,7 @@ with open('data.csv', newline='') as csvfile:
     datetime_object = datetime.strptime(split_string[0], '%Y-%m-%d').date()
     delta = today - datetime_object  
     delta_array.append(delta.days)
-
+median = np.median(delta_array)
 fig1, ax1 = matplotlib.pyplot.subplots()
 ax1.set_title('Atualização do repositório')
 ax1.boxplot(delta_array)
@@ -170,7 +170,7 @@ with open('data.csv', newline='') as csvfile:
   open_issues_total = 0
   total_issues = 0
   for row in spamreader:
-    if not row [0]:
+    if len(row[0].split(',')) <= 8:
       continue
     open_issues = row[0].split(',')[7]
     closed_issues = row[0].split(',')[8]
